@@ -45,15 +45,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.mobilecomputing.ui.theme.MobileComputingTheme
 class MainActivity : ComponentActivity() {
+
+    lateinit var navController: NavHostController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Column {
-                MessageCard(Message("Android", "Jetpack Compose Uni Oulu"))
-                PreviewConversation()
-
+//            Column {
+//                PreviewConversation()
+//
+//            }
+            MobileComputingTheme{
+                navController = rememberNavController()
+                SetupNavGraph(navController = navController)
             }
         }
     }
@@ -61,12 +70,6 @@ class MainActivity : ComponentActivity() {
 
 data class Message(val author: String, val body: String)
 
-//@Preview(name = "Light Mode")
-//@Preview(
-//    uiMode = Configuration.UI_MODE_NIGHT_YES,
-//    showBackground = true,
-//    name="Dark Mode"
-//)
 @Composable
 fun MessageCard(msg: Message) {
     Row(modifier = Modifier.padding(all = 8.dp)) {
@@ -81,7 +84,6 @@ fun MessageCard(msg: Message) {
         Spacer(modifier = Modifier.width(8.dp))
 
         // We keep track if the message is expanded or not in this
-        // variable
         var isExpanded by remember { mutableStateOf(false) }
         // surfaceColor will be updated gradually from one color to the other
         val surfaceColor by animateColorAsState(
@@ -104,7 +106,9 @@ fun MessageCard(msg: Message) {
                 // surfaceColor color will be changing gradually from primary to surface
                 color = surfaceColor,
                 // animateContentSize will change the Surface size gradually
-                modifier = Modifier.animateContentSize().padding(1.dp)
+                modifier = Modifier
+                    .animateContentSize()
+                    .padding(1.dp)
             ) {
                 Text(
                     text = msg.body,
