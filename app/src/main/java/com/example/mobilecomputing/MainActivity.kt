@@ -52,6 +52,17 @@ import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.mobilecomputing.ui.theme.MobileComputingTheme
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+
+
+import androidx.compose.material.*
+import androidx.compose.material3.Button
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+
 class MainActivity : ComponentActivity() {
 
     lateinit var navController: NavHostController
@@ -59,8 +70,65 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MobileComputingTheme{
-                navController = rememberNavController()
-                SetupNavGraph(navController = navController)
+                var selectedImageUri by remember {
+                    mutableStateOf<Uri?>(null)
+                }
+                var selectedImageUris by remember {
+                    mutableStateOf<List<Uri>>(emptyList())
+                }
+                val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.PickVisualMedia(),
+                    onResult = { uri -> selectedImageUri = uri }
+                )
+                val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.PickMultipleVisualMedia(),
+                    onResult = { uris -> selectedImageUris = uris }
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            Button(onClick = {
+                                singlePhotoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            }) {
+                                Text(text = "Pick one photo")
+                            }
+                            Button(onClick = {
+                                multiplePhotoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            }) {
+                                Text(text = "Pick multiple photo")
+                            }
+                        }
+                    }
+
+                    item {
+                        AsyncImage(
+                            model = selectedImageUri,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    items(selectedImageUris) { uri ->
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
             }
         }
     }
