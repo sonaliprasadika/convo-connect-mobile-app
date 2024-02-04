@@ -8,7 +8,6 @@ import com.example.mobilecomputing.data.NoteDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -17,20 +16,12 @@ class NotesViewModel(
     private val dao: NoteDao
 ) : ViewModel() {
 
-    private val isSortedByDateAdded = MutableStateFlow(true)
 
-    private var notes =
-        isSortedByDateAdded.flatMapLatest { sort ->
-            if (sort) {
-                dao.getNotesOrderdByDateAdded()
-            } else {
-                dao.getNotesOrderdByTitle()
-            }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    private var notes = dao.getNotesOrderdByTitle()
 
     val _state = MutableStateFlow(NoteState())
     val state =
-        combine(_state, isSortedByDateAdded, notes) { state, isSortedByDateAdded, notes ->
+        combine(_state, notes) { state, notes ->
             state.copy(
                 notes = notes
             )
@@ -38,17 +29,35 @@ class NotesViewModel(
 
     fun onEvent(event: NotesEvent) {
         when (event) {
-            is NotesEvent.DeleteNote -> {
-                viewModelScope.launch {
-                    dao.deleteNote(event.note)
-                }
-            }
+//            is NotesEvent.DeleteNote -> {
+//                viewModelScope.launch {
+//                    dao.deleteNote(event.note)
+//                }
+//            }
+//
+//            is NotesEvent.SaveNote -> {
+//                val note = Note(
+//                    title = state.value.title.value,
+//                    description = state.value.description.value,
+//                    dateAdded = System.currentTimeMillis()
+//                )
+//
+//                viewModelScope.launch {
+//                    dao.upsertNote(note)
+//                }
+//
+//                _state.update {
+//                    it.copy(
+//                        title = mutableStateOf(""),
+//                        description = mutableStateOf("")
+//                    )
+//                }
+//            }
 
-            is NotesEvent.SaveNote -> {
+            is NotesEvent.SaveProfile -> {
                 val note = Note(
+                    id = 1,
                     title = state.value.title.value,
-                    description = state.value.description.value,
-                    dateAdded = System.currentTimeMillis()
                 )
 
                 viewModelScope.launch {
@@ -57,15 +66,15 @@ class NotesViewModel(
 
                 _state.update {
                     it.copy(
-                        title = mutableStateOf(""),
-                        description = mutableStateOf("")
+                        title = mutableStateOf("")
                     )
                 }
             }
 
-            NotesEvent.SortNotes -> {
-                isSortedByDateAdded.value = !isSortedByDateAdded.value
-            }
+//            NotesEvent.SortNotes -> {
+//                isSortedByDateAdded.value = !isSortedByDateAdded.value
+//            }
+            else -> {}
         }
     }
 

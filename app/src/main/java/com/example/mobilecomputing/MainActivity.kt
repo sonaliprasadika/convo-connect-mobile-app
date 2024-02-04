@@ -1,4 +1,5 @@
 package com.example.mobilecomputing
+//import com.example.mobilecomputing.presentation.AddNoteScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,18 +12,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.mobilecomputing.data.NotesDatabase
-import com.example.mobilecomputing.presentation.AddNoteScreen
+import com.example.mobilecomputing.presentation.EditProfile
 import com.example.mobilecomputing.presentation.NotesScreen
 import com.example.mobilecomputing.presentation.NotesViewModel
 import com.example.mobilecomputing.ui.theme.MobileComputingTheme
+
+
 class MainActivity : ComponentActivity() {
 
-//    lateinit var navController: NavHostController
+    lateinit var navController: NavHostController
     private val database by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -60,8 +64,8 @@ class MainActivity : ComponentActivity() {
                                 onEvent = viewModel::onEvent
                             )
                         }
-                        composable("AddNoteScreen") {
-                            AddNoteScreen(
+                        composable("EditProfile") {
+                            EditProfile(
                                 state = state,
                                 navController = navController,
                                 onEvent = viewModel::onEvent
@@ -69,14 +73,16 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+
                 }
+
+
 //                navController = rememberNavController()
 //                SetupNavGraph(navController = navController)
             }
         }
     }
 }
-
 
 
 

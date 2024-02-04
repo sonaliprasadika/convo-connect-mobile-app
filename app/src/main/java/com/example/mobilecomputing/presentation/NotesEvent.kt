@@ -11,4 +11,8 @@ sealed interface NotesEvent {
         val title: String,
         val description: String
     ): NotesEvent
+
+    data class SaveProfile(
+        val title: String,
+    ): NotesEvent
 }

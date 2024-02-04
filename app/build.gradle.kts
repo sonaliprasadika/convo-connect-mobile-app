@@ -73,7 +73,7 @@ dependencies {
     kapt("androidx.room:room-compiler:$roomVersion")
     // Navigation
     implementation ("androidx.navigation:navigation-compose:2.7.5")
-
+    implementation("io.coil-kt:coil-compose:2.5.0")
     // Extended Icons
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
 }
