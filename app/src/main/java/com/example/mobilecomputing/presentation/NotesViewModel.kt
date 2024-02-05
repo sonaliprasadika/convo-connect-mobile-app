@@ -29,35 +29,9 @@ class NotesViewModel(
 
     fun onEvent(event: NotesEvent) {
         when (event) {
-//            is NotesEvent.DeleteNote -> {
-//                viewModelScope.launch {
-//                    dao.deleteNote(event.note)
-//                }
-//            }
-//
-//            is NotesEvent.SaveNote -> {
-//                val note = Note(
-//                    title = state.value.title.value,
-//                    description = state.value.description.value,
-//                    dateAdded = System.currentTimeMillis()
-//                )
-//
-//                viewModelScope.launch {
-//                    dao.upsertNote(note)
-//                }
-//
-//                _state.update {
-//                    it.copy(
-//                        title = mutableStateOf(""),
-//                        description = mutableStateOf("")
-//                    )
-//                }
-//            }
-
             is NotesEvent.SaveProfile -> {
                 val note = Note(
-                    id = 1,
-                    title = state.value.title.value,
+                    title = state.value.title.value
                 )
 
                 viewModelScope.launch {
@@ -70,10 +44,6 @@ class NotesViewModel(
                     )
                 }
             }
-
-//            NotesEvent.SortNotes -> {
-//                isSortedByDateAdded.value = !isSortedByDateAdded.value
-//            }
             else -> {}
         }
     }

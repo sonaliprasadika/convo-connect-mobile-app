@@ -13,14 +13,6 @@ interface NoteDao {
     @Upsert
     suspend fun upsertNote(note: Note)
 
-    @Delete
-    suspend fun deleteNote(note: Note)
-
-    @Query("SELECT * FROM note")
-    fun getNotesOrderdByDateAdded(): Flow<List<Note>>
-
-
     @Query("SELECT * FROM note")
     fun getNotesOrderdByTitle(): Flow<List<Note>>
-
 }
