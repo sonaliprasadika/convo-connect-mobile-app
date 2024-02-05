@@ -75,14 +75,14 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation ("androidx.databinding:databinding-runtime:8.2.2")
+    // Room
+    val roomVersion = "2.6.0"
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    // Navigation
+    implementation ("androidx.navigation:navigation-compose:2.7.5")
     implementation("io.coil-kt:coil-compose:2.5.0")
-    val room_version = "2.6.1"
-
-    implementation("androidx.room:room-runtime:$room_version")
-//    annotationProcessor("androidx.room:room-compiler:$room_version")
-// To use Kotlin annotation processing tool (kapt)
-    kapt("androidx.room:room-compiler:$room_version")
-
+    // Extended Icons
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
 }

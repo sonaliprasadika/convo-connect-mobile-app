@@ -1,128 +1,86 @@
 package com.example.mobilecomputing
-
-import android.content.Context
+//import com.example.mobilecomputing.presentation.AddNoteScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.runtime.setValue
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
+import com.example.mobilecomputing.data.NotesDatabase
+import com.example.mobilecomputing.presentation.EditProfile
+import com.example.mobilecomputing.presentation.NotesScreen
+import com.example.mobilecomputing.presentation.NotesViewModel
 import com.example.mobilecomputing.ui.theme.MobileComputingTheme
-import android.net.Uri
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.Button
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.net.toUri
-import coil.compose.AsyncImage
-import java.io.File
-import java.io.InputStream
+
 
 class MainActivity : ComponentActivity() {
 
     lateinit var navController: NavHostController
+    private val database by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            NotesDatabase::class.java,
+            "notes.db"
+        ).build()
+    }
+
+    private val viewModel by viewModels<NotesViewModel> (
+        factoryProducer = {
+            object : ViewModelProvider.Factory {
+                override fun<T: ViewModel> create(modelClass: Class<T>): T {
+                    return NotesViewModel(database.dao) as T
+                }
+            }
+        }
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MobileComputingTheme{
-
-                var selectedImageUri by remember {
-                    mutableStateOf<Uri?>(null)
-                }
-
-                var uploadedImageUri by remember {
-                    mutableStateOf<Uri?>(null)
-                }
-
-                val uploadedImageFile = File(filesDir, "uploaded_image.jpg")
-                if (uploadedImageFile.exists()) {
-                    uploadedImageUri = uploadedImageFile.toUri()
-                }
-
-                val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.PickVisualMedia(),
-                    onResult = { uri -> selectedImageUri = uri }
-                )
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    item {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.SpaceAround
-                        ) {
-                            Button(onClick = {
-                                singlePhotoPickerLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-                            }) {
-                                Text(text = "Pick one photo")
-                            }
 
-                            Text(text = "Pick multiple photo")
+                    val state by viewModel.state.collectAsState()
+                    val navController = rememberNavController()
 
+                    NavHost(navController = navController, startDestination = "NotesScreen") {
+                        composable("NotesScreen") {
+                            NotesScreen(
+                                state = state,
+                                navController = navController,
+                                onEvent = viewModel::onEvent
+                            )
+                        }
+                        composable("EditProfile") {
+                            EditProfile(
+                                state = state,
+                                navController = navController,
+                                onEvent = viewModel::onEvent
+                            )
                         }
                     }
 
-                    item {
-                        AsyncImage(
-                            model = uploadedImageUri,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxWidth(),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        if (selectedImageUri != null) {
-                            uploadImageToLocal(selectedImageUri = selectedImageUri!!) { uploadedUri ->
-                                uploadedImageUri = uploadedUri
-                            }
-                        }
-                    }
 
                 }
 
+
+//                navController = rememberNavController()
+//                SetupNavGraph(navController = navController)
             }
         }
-    }
-
-
-}
-
-
-@Composable
-private fun uploadImageToLocal(selectedImageUri: Uri,onImageUploaded: (Uri) -> Unit) {
-    val context = LocalContext.current
-    val contentResolver = context.contentResolver
-
-    val inputStream: InputStream? = contentResolver.openInputStream(selectedImageUri)
-
-    if (inputStream != null) {
-        val outputStream = context.openFileOutput("uploaded_image.jpg", Context.MODE_PRIVATE)
-        inputStream.copyTo(outputStream)
-        outputStream.close()
-        inputStream.close()
-
-        val uploadedImageUri = Uri.fromFile(File(context.filesDir, "uploaded_image.jpg"))
-        onImageUploaded(uploadedImageUri)
-
-        Toast.makeText(context, "Image uploaded to local storage", Toast.LENGTH_SHORT).show()
-    } else {
-        Toast.makeText(context, "Failed to upload image", Toast.LENGTH_SHORT).show()
     }
 }
 
