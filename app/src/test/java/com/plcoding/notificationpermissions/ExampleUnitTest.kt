@@ -1,4 +1,4 @@
-package com.example.mobilecomputing
+package com.plcoding.notificationpermissions
 
 import org.junit.Test
 
